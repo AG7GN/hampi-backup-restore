@@ -3,7 +3,7 @@
 # Script to backup user's home folderi to a tar.gz file,
 # or to restore /home/pi from a previously made tar.gz file.
 
-VERSION="1.0.4"
+VERSION="1.0.5"
 STAMP=$(date +"%Y%m%dT%H%M")
 BACKUP_FILE="${HOSTNAME}${STAMP}.tar.gz"
 
@@ -52,6 +52,11 @@ case $? in
 			 --exclude=.xsession-errors \
 			 --exclude=.Trash \
           --exclude=Downloads \
+          --exclude=configure-autohotspot.sh \
+          --exclude=watchdog-tnc.sh \
+          --exclude=tnc.sh \
+          --exclude=dw-*.sh \
+          --exclude=trim-f*.sh \
           -cpvzf $BACKUP_FOLDER/$BACKUP_FILE .
 
       [[ $? != 0 ]] && errorReport "Could not complete backup of $HOME"
