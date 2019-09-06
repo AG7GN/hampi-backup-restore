@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Backup/Restore Home Folder
+GenericName=Backup/Restore Home Folder
+Comment=Backup or restore user Pi's home folder to external storage
+Exec=lxterminal --geometry=90x30 -t "Backup or restore home folder" -e "/usr/local/bin/hampi-backup-restore.sh"
+Icon=/usr/share/raspberrypi-artwork/raspitr.png
+Terminal=false
+Type=Application
+Categories=HamRadio;
+Comment[en_US]=Backup/Restore Home Folder
