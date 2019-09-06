@@ -3,7 +3,7 @@
 # Script to backup user's home folderi to a tar.gz file,
 # or to restore /home/pi from a previously made tar.gz file.
 
-VERSION="1.0.6"
+VERSION="1.0.7"
 STAMP=$(date +"%Y%m%dT%H%M")
 BACKUP_FILE="${HOSTNAME}${STAMP}.tar.gz"
 
@@ -71,7 +71,7 @@ Eject the USB stick by clicking the eject button on the right side of the deskto
    2)
       RESTORE_FILE="$(yad --center --file --file-filter="tar.gz files|*.tar.gz" --title="Select archive file to restore from")"
 		[[ $? == 1 || $? == 252 ]] && errorReport  # User has cancelled.
-		yad --title="$(basename $0) Version $VERSION" --question --borders=20 \
+		yad --center --title="$(basename $0) Version $VERSION" --question --borders=20 \
 			 --text="Contents of <b>$RESTORE_FILE</b> will be restored to <b>$HOME</b>.\n\n \
 Existing files with the same name will be overwritten \
 by the restored files.\n\n<b>Do you wish to continue?</b>" \
