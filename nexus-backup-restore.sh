@@ -3,7 +3,7 @@
 # Script to backup user's home folderi to a tar.gz file,
 # or to restore /home/pi from a previously made tar.gz file.
 
-VERSION="1.0.9"
+VERSION="1.0.10"
 STAMP=$(date +"%Y%m%dT%H%M")
 BACKUP_FILE="${HOSTNAME}${STAMP}.tar.gz"
 
@@ -40,7 +40,7 @@ or a file for a Restore.  USB sticks and storage devices usually appear in /medi
     --buttons-layout=center --button=Cancel:0 --button=Backup:1 --button=Restore:2
 case $? in
 	1)
-		BACKUP_FOLDER="$(yad --center --file --directory --title="Select destination folder for backup")"
+		BACKUP_FOLDER="$(yad --center --file --directory --title="Select destination device/folder for backup")"
 		[[ $? == 1 || $? == 252 ]] && errorReport  # User has cancelled.
 
 		tar -C $HOME \
