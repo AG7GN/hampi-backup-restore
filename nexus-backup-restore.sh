@@ -3,7 +3,7 @@
 # Script to backup user's home folderi to a tar.gz file,
 # or to restore /home/pi from a previously made tar.gz file.
 
-VERSION="1.0.11"
+VERSION="1.0.12"
 STAMP=$(date +"%Y%m%dT%H%M")
 BACKUP_FILE="${HOSTNAME}${STAMP}.tar.gz"
 
@@ -52,6 +52,8 @@ case $? in
 			 --exclude=.xsession-errors \
 			 --exclude=.Trash \
           --exclude=configure-autohotspot.sh \
+          --exclude=.asoundrc \
+          --exclude=.config/pulse \
           --exclude=watchdog-tnc.sh \
           --exclude=initialize-pi.sh \
           --exclude=tnc.sh \
