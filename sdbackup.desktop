@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=SD Backup
+Comment=Makes compressed backup of microSD card
+Exec=sh -c "sudo sdbackup.py"
+Icon=media-removable
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=Utility
+Keywords=Archiving;Utility;
