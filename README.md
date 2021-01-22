@@ -65,7 +65,6 @@ On a Raspberry Pi 4B with a 16GB microSD card (about half full) with 4GB RAM and
 	
 		sudo sdbackup.py -d /media/pi/500GB
 
-
 ### Run as a `cron` job
 
 You can set up your Pi to do automatic unattended backups of your microSD card via [cron](https://linuxize.com/post/scheduling-cron-jobs-with-crontab/). In this example, I'll backup up my microSD card to a USB disk drive connected to my Pi. My external disk appears as `500GB` on my desktop, so the path to that disk is: `/media/pi/500GB`.
@@ -89,7 +88,7 @@ I'll set up the script to run every Sunday at 2:13 AM. The script will also dele
 
 ### Run the GUI
 
-If you don't provide any arguments, `sdbackup.py` will attempt to start the GUI.
+If you don't provide any arguments, `sdbackup.py` will attempt to start the GUI. It can be run at __Raspberry > Accessories > SD Compressed Backup__.
 
 - A dialog will appear that will prompt you to select the destination for the backup. Navigate to the desired destination, making sure the full destination appears in the __Selection:__ field. Click __OK__ once you've selected the destination.
 - If the destination is valid and has enough available space, another dialog window appears. Click __Start__ to begin the backup. You can monitor the backup progress via the progress bar and the % complete indicator.
