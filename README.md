@@ -12,13 +12,17 @@ This script is handy when you're moving to a new image. In that case, run it on 
 
 ## sdbackup.py
 
-This script will backup and compress the entire microSD card to an external (USB attached) disk or flash drive. It can be run from the command line and do scheduled backups via a cron job, or be run interactively as a GUI.  The script creates a file in the destination disk that the user selects. The backup file name is of this format:
+This script will backup and compress the entire microSD card to an external (USB attached) disk or flash drive. It can be run from the command line and do scheduled backups via a cron job, or be run interactively as a GUI.  
+
+You might ask: Doesn't Raspbian already have an SD clone utility? Yes, it does. that utility makes an exact copy of the SD card to another SD card. `sdbackup.py` makes a *compressed* backup of the microSD card to almost any external disk. That backup file can then be burned to a microSD card if desired. This allows you to make regular (automated, if desired) backups and have multiple date-stamped backup files to choose from.
+
+The script creates a file in the destination disk that the user selects. The backup file name is of this format:
 
 	$HOSTNAME_xGB_YYYYMMDDTHHmmSS.gz
 	
 where `$HOSTNAME` is the hostname of the Raspberry Pi., `x` is the size of the microSD card that's being backed up (the script determines this), `YYYY` is the year,  `MM` the month, `DD` day of the month, `T` separates the date from the time, `HH` the hour, `mm` the minute, and `ss` the second when the backup was started. `gz` is the file extension, indicating a 'gzipped' file.
 
-The USB drive containing the backup file can then be moved to any Mac or Linux or Windows PC and the backup `gz` file can be burned to a microSD card using [Balena Etcher](https://www.balena.io/etcher/). The `gz` file does not have to be uncompressed first. Balena Etcher automatically decompresses it. 
+The USB drive containing the backup file can then be moved to any Mac or Linux or Windows PC and the backup `gz` file can be burned to a microSD card using [Balena Etcher](https://www.balena.io/etcher/). The `gz` file does not have to be decompressed first. Balena Etcher automatically decompresses it. 
 
 Note that when you burn the backup `gz` file to a microSD card, that card must be the same size as or larger than the microSD card from which the backup was made. That's why I embedded the original microSD card size into the file name.
 
@@ -34,7 +38,7 @@ On a Raspberry Pi 4B with a 16GB microSD card (about half full) with 4GB RAM and
 
 - The Raspbian OS must have the `exfat-utils` package installed. This is installed by default on the NexusDR-X image.
 
-- NOTE: The Raspbian OS by default automatically detects disks plugged in to USB and in most cases, a shortcut will automatically appear on the desktop for that disk. You'll also likely see a "__Removable medium inserted__" window popup when the disk is attached to a USB port. Just click __Cancel__ to close that window. USB attached drives appear as:
+- NOTE: The Raspbian OS by default automatically detects disks plugged in to USB and in most cases, a shortcut will automatically appear on the desktop for that disk. You'll also likely see a "__Removable medium inserted__" window pop up when the disk is attached to a USB port. Just click __Cancel__ to close that window. USB attached drives appear as:
 
 	/media/`$USER`/__*name-of-drive*__ 
 
@@ -64,7 +68,7 @@ On a Raspberry Pi 4B with a 16GB microSD card (about half full) with 4GB RAM and
 
 ### Run as a `cron` job
 
-You can set up your Pi to do automatic unattended backups via [cron](https://linuxize.com/post/scheduling-cron-jobs-with-crontab/) of your microSD card. In this example, I'll backup up my microSD card to a USB disk drive connected to my Pi. My external disk appears as `500GB` on my desktop, so the path to that disk is: `/media/pi/500GB`.
+You can set up your Pi to do automatic unattended backups of your microSD card via [cron](https://linuxize.com/post/scheduling-cron-jobs-with-crontab/). In this example, I'll backup up my microSD card to a USB disk drive connected to my Pi. My external disk appears as `500GB` on my desktop, so the path to that disk is: `/media/pi/500GB`.
 
 I'll set up the script to run every Sunday at 2:13 AM. The script will also delete backups older than 14 days and verify that the external disk is attached before attempting to run the backup.
 
@@ -76,9 +80,9 @@ I'll set up the script to run every Sunday at 2:13 AM. The script will also dele
 
 	The line above breaks down as follows:
 	
-	- `13 2 * * 0`: Run this script at 13 minutes after 2AM regardless of the day of the month (the 1st `*`) regardless of the month (the 2nd `*`) every Sunday (the `0`).
+	- `13 2 * * 0`: Run this script at 13 minutes after 2AM any date of the month (the 1st `*`) any month (the 2nd `*`) every Sunday (the `0`).
 	- `[ -d /media/pi/500GB ] &&`: Verify that `/media/pi/500GB` exists and is a directory, and if it is (`&&`), execute the remainder of the line. If `/media/pi/500GB` is not present or is not a directory, the job ends here.
-	- `(sudo find /media/pi/500GB/$HOSTNAME_*GB_*.gz -maxdepth 1 -type f -mtime +14 -delete`: Look for files (`-type f`) matching this criteria: `/media/pi/500GB/$HOSTNAME_*GB_*.gz`. If any matching files are older than 14 days (`-mtime +14`) , delete (`-delete`) them. Don't look for any matching files in any subdirectories (`-maxdepth 1`), then once that's done (`;`)...
+	- `(sudo find /media/pi/500GB/$HOSTNAME_*GB_*.gz -maxdepth 1 -type f -mtime +14 -delete;`: Look for files (`-type f`) matching this criteria: `/media/pi/500GB/$HOSTNAME_*GB_*.gz`. If any matching files are older than 14 days (`-mtime +14`) , delete (`-delete`) them. Don't look for any matching files in any subdirectories (`-maxdepth 1`), then once that's done (`;`)...
 	- `sudo sdbackup.py -d /media/pi/500GB >/dev/null 2>&1)`: ...run the backup script and send any printed output from `sdbackup.py` to the bit bucket (`>/dev/null 2>&1`).
 	
 - Save the file and exit the editor. The script will run automatically at 2:13AM every Sunday.
@@ -87,8 +91,8 @@ I'll set up the script to run every Sunday at 2:13 AM. The script will also dele
 
 If you don't provide any arguments, `sdbackup.py` will attempt to start the GUI.
 
-- A dialog will appear that will prompt you to select the destination for the backup. Click __OK__ once you've selected the destination.
+- A dialog will appear that will prompt you to select the destination for the backup. Navigate to the desired destination, making sure the full destination appears in the __Selection:__ field. Click __OK__ once you've selected the destination.
 - If the destination is valid and has enough available space, another dialog window appears. Click __Start__ to begin the backup. You can monitor the backup progress via the progress bar and the % complete indicator.
-- When the backup has completed, click __Quit__ to close the script. Clicking __Quit__ while the backup is running will abort the backup and delete the backup file.
+- When the backup has completed, you'll see a message with the destination backup file and the elapsed time to backup the microSD card. Click __Quit__ to close the script. Clicking __Quit__ while the backup is running will abort the backup and delete the backup file.
 
 
