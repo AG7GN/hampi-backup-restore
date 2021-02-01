@@ -3,7 +3,7 @@
 # Script to backup user's home folderi to a tar.gz file,
 # or to restore /home/pi from a previously made tar.gz file.
 
-VERSION="1.0.12"
+VERSION="1.1.0"
 STAMP=$(date +"%Y%m%dT%H%M")
 BACKUP_FILE="${HOSTNAME}${STAMP}.tar.gz"
 
@@ -43,6 +43,8 @@ case $? in
 		BACKUP_FOLDER="$(yad --center --file --directory --title="Select destination device/folder for backup")"
 		[[ $? == 1 || $? == 252 ]] && errorReport  # User has cancelled.
 
+	   # Backup crontab
+	   crontab -l > $HOME/crontab.$USER
 		tar -C $HOME \
           --exclude=.cache \
           --exclude=.debug \
@@ -80,6 +82,8 @@ by the restored files.\n\n<b>Do you wish to continue?</b>" \
 		[[ $? != 1 ]] && errorReport  # User has cancelled.
       tar -C $HOME -xpvzf "$RESTORE_FILE"
 	   [[ $? != 0 ]] && errorReport	
+	   # Restore crontab
+	   [[ -s $HOME/crontab.$USER ]] && crontab $HOME/crontab.$USER
       yad --center --title="$(basename $0) Version $VERSION" --info --borders=20 --text-align=center \
           --text="<big><b>Restore complete.</b></big>.\n\n \
 Eject the USB stick by clicking the eject button on the right side of the desktop menu bar." \

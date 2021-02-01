@@ -1,6 +1,6 @@
 # nexus-backup-restore
 
-Version 20210122
+Version 20210201
 
 Scripts to backup/restore home folder and to backup and compress the entire microSD card.
 
@@ -9,6 +9,8 @@ Scripts to backup/restore home folder and to backup and compress the entire micr
 This script will back up the contents of your home folder on your Nexus Pi to an external (USB attached) disk or flash drive.
  
 This script is handy when you're moving to a new image. In that case, run it on your Pi to create a backup of your home folder, then insert the SD card with the new image, run this scrip again and insert the USB stick with your backup, click Restore and follow the prompts.
+
+The script will also backup and restore the user's crontab.
 
 ## sdbackup.py
 
