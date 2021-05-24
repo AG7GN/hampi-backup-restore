@@ -1,6 +1,6 @@
 # nexus-backup-restore
 
-Version 20210410
+Version 20210524
 
 Scripts to backup/restore home folder and to backup and compress the entire microSD card.
 
@@ -77,13 +77,13 @@ I'll set up the script to run every Sunday at 2:13 AM. The script will also dele
 
 - Add the following line to the end of the file (IMPORTANT: change `/media/pi/500GB` to match your attached disk and adjust the time/frequency as desired):
 
-		13 2 * * 0 [ -d /media/pi/500GB ] && (sudo find /media/pi/500GB/${HOSTNAME}_*GB_*.gz -maxdepth 1 -type f -mtime +14 -delete; sudo sdbackup.py -d /media/pi/500GB >/dev/null 2>&1)
+		13 2 * * 0 [ -d /media/pi/500GB ] && (sudo find /media/pi/500GB/$(hostname)_*GB_*.gz -maxdepth 1 -type f -mtime +14 -delete; sudo sdbackup.py -d /media/pi/500GB >/dev/null 2>&1)
 
 	The line above breaks down as follows:
 	
 	- `13 2 * * 0`: Run this script at 13 minutes after 2AM any date of the month (the 1st `*`) any month (the 2nd `*`) every Sunday (the `0`).
 	- `[ -d /media/pi/500GB ] &&`: Verify that `/media/pi/500GB` exists and is a directory, and if it is (`&&`), execute the remainder of the line. If `/media/pi/500GB` is not present or is not a directory, the job ends here.
-	- `(sudo find /media/pi/500GB/${HOSTNAME}_*GB_*.gz -maxdepth 1 -type f -mtime +14 -delete;`: Look for files (`-type f`) matching this criteria: `/media/pi/500GB/${HOSTNAME}_*GB_*.gz`. If any matching files are older than 14 days (`-mtime +14`) , delete (`-delete`) them. Don't look for any matching files in any subdirectories (`-maxdepth 1`), then once that's done (`;`)...
+	- `(sudo find /media/pi/500GB/$(hostname)_*GB_*.gz -maxdepth 1 -type f -mtime +14 -delete;`: Look for files (`-type f`) matching this criteria: `/media/pi/500GB/$(hostname)_*GB_*.gz`. If any matching files are older than 14 days (`-mtime +14`) , delete (`-delete`) them. Don't look for any matching files in any subdirectories (`-maxdepth 1`), then once that's done (`;`)...
 	- `sudo sdbackup.py -d /media/pi/500GB >/dev/null 2>&1)`: ...run the backup script and send any printed output from `sdbackup.py` to the bit bucket (`>/dev/null 2>&1`).
 	
 - Save the file and exit the editor. The script will run automatically at 2:13AM every Sunday.
