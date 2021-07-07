@@ -5,8 +5,6 @@ import os
 import stat
 import subprocess
 import json
-import tkinter as tk
-from tkinter import filedialog, ttk, messagebox
 import shutil
 import datetime
 import gzip
@@ -17,19 +15,17 @@ __author__ = "Steve Magnuson AG7GN"
 __copyright__ = "Copyright 2020, Steve Magnuson"
 __credits__ = ["Steve Magnuson"]
 __license__ = "GPL"
-__version__ = "1.0.0"
+__app_name__ = "sdbackup.py"
+__version__ = "1.1.1"
 __maintainer__ = "Steve Magnuson"
 __email__ = "ag7gn@arrl.net"
 __status__ = "Production"
 
-
 run_backup = True
-block_device = "mmcblk0"
-disk = f"/dev/{block_device}"
 
 
 def sigint_handler(sig, frame):
-    print(f"Signal handler caught {sig} {frame}")
+    # print(f"Signal handler caught {sig} {frame}")
     cleanup()
 
 
@@ -62,20 +58,40 @@ def valid_fstype(mount: str):
     # print(json.dumps(json_object, indent=4))
     for i in range(0, len(json_object['blockdevices'])):
         if json_object['blockdevices'][i]['name'] == block_device:
-            continue  # Skip the microSD card as a possible destination
+            continue  # Skip the source device as a possible destination
+        children = 1
         try:
             _mount = json_object['blockdevices'][i]['children']
         except KeyError:  # Doesn't contain 'children'
             _mount = [json_object['blockdevices'][i], ]
-        if _mount[0]['mountpoint'] == mount:
-            if _mount[0]['fstype'] != 'vfat':
-                return True, None
-            else:
-                return False, f"ERROR: '{mount}' is type vfat and does not " \
-                              f"support files larger than 4GB. Use an exfat " \
-                              f"or ext4 formatted disk."
-    return False, f"ERROR: Destination is on the microSD card. " \
-                  f"Can't back up to this device."
+        else:  # There are children
+            children = len(json_object['blockdevices'][i]['children'])
+        for j in range(0, children):
+            # print(f"Child {j} is /dev/{_mount[j]['name']} and mountpoint is {_mount[j]['mountpoint']}")
+            if _mount[j]['mountpoint'] == mount:
+                if _mount[j]['fstype'] != 'vfat':
+                    return True, None
+                else:
+                    return False, f"ERROR: '{mount}' is type vfat and does not " \
+                                  f"support files larger than 4GB. Use an exfat " \
+                                  f"or ext4 formatted disk."
+    return False, f"ERROR: Destination device is the same as the source device. " \
+                  f"Can't back up to {mount}."
+
+
+def run_command(cmd: str):
+    """
+    Executes the supplied string as a subprocess command
+
+    :param cmd: Command to execute
+    :return: result as a string
+    """
+    try:
+        _result = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
+    except subprocess.CalledProcessError as e:
+        print(f"ERROR: {e}. Executing {cmd}")
+        _result = None
+    return _result
 
 
 def progress_percentage(perc, width=None):
@@ -133,7 +149,7 @@ def copy_progress(copied, total):
 
 def backup(path: str, callback=None, block_size=1024*1024):
     """
-    Performs a gzipped copy of the microSD card (/dev/mmcblk0) to an
+    Performs a gzipped copy of the device containing / and /boot to an
     external drive.
 
     :param path: Path to the destination
@@ -142,10 +158,10 @@ def backup(path: str, callback=None, block_size=1024*1024):
     :return: Tuple of 2 strings: destination-path/file and elapsed
             backup time (HH:MM:SS)
     """
-    sd_card_size = shutil.disk_usage('/')[0] + shutil.disk_usage('/boot')[0]
-    # sd_card_size = 100*1024*1024
+    device_size = shutil.disk_usage('/')[0] + shutil.disk_usage('/boot')[0]
+    # device_size = 100*1024*1024
     now = datetime.datetime.now().strftime('%Y%m%dT%H%M%S')
-    zip_file = f"{os.uname()[1]}_{round(sd_card_size / 1000000000)}GB_{now}.gz"
+    zip_file = f"{os.uname()[1]}_{round(device_size / 1000000000)}GB_{now}.gz"
     copied = 0
     start = int(time.time())
     try:
@@ -154,14 +170,14 @@ def backup(path: str, callback=None, block_size=1024*1024):
             while run_backup:
                 block = file_in.read(block_size)
                 # if not block:
-                if not block or copied >= sd_card_size:
+                if not block or copied >= device_size:
                     break
                 file_out.write(block)
                 copied += block_size
                 if callback:
-                    # Make sure copied doesn't exceed sd_card_size,
+                    # Make sure copied doesn't exceed device_size,
                     # which will likely happen on the last block.
-                    callback(min(max(copied, 0), sd_card_size), total=sd_card_size)
+                    callback(min(max(copied, 0), device_size), total=device_size)
     except IOError:
         # print("I/O ERROR({0}): {1}".format(e.errno, e.strerror),
         #       file=sys.stderr)
@@ -211,12 +227,15 @@ def validate_destination(dest: str):
 def cleanup():
     global run_backup
     run_backup = False
-    root.quit()
+    if root:
+        root.quit()
 
 
 if __name__ == "__main__":
+    root = None
+    signal.signal(signal.SIGINT, sigint_handler)
     import argparse
-    parser = argparse.ArgumentParser(prog='ddbackup.py',
+    parser = argparse.ArgumentParser(prog='sdbackup.py',
                                      description=f"Backup & compress Raspberry Pi Image")
     parser.add_argument('-v', '--version', action='version',
                         version=f"Version: {__version__}")
@@ -224,10 +243,23 @@ if __name__ == "__main__":
                         type=str, metavar="STRING",
                         help="Destination path/location for the backup")
     arg_info = parser.parse_args()
+
+    block_device = None
+    disk = None
+    root_partition = run_command("findmnt / -o source -n")
+    if root_partition:
+        block_device = run_command(f"lsblk -no pkname {root_partition}")
+        if block_device:
+            disk = f"/dev/{block_device}"
+        else:
+            sys.exit(1)
+    else:
+        sys.exit(1)
+
     try:
         stat.S_ISBLK(os.stat(disk).st_mode)
     except FileNotFoundError:
-        print(f"ERROR: This application only works on Linux systems with '{disk}'",
+        print(f"ERROR: This application only works on Linux systems",
               file=sys.stderr)
         sys.exit(1)
     if os.geteuid() != 0:
@@ -237,6 +269,7 @@ if __name__ == "__main__":
     if arg_info.destination:
         dest_ok, message = validate_destination(arg_info.destination)
         if dest_ok:
+            print(f"Backing up {disk} to {arg_info.destination}...")
             dest_file, elapsed_time = backup(arg_info.destination,
                                              callback=copy_progress)
             if elapsed_time is None:
@@ -256,9 +289,10 @@ if __name__ == "__main__":
         sys.exit(1)
         # os.environ.__setitem__('DISPLAY', ':0.0')
 
+    import tkinter as tk
+    from tkinter import filedialog, ttk, messagebox
     root = tk.Tk()
     # root.resizable(width=True, height=True)
-    signal.signal(signal.SIGINT, sigint_handler)
     # Stop program if Esc key pressed
     root.bind('<Escape>', lambda _: cleanup())
     # Stop program if window is closed at OS level ('X' in upper right
@@ -276,14 +310,14 @@ if __name__ == "__main__":
         else:
             initial_dir = "/"
         root.directory = filedialog.askdirectory(mustexist=True,
-                                                 title=f"SDBackup {__version__} Select destination",
+                                                 title=f"{__app_name__} {__version__} Select destination",
                                                  initialdir=initial_dir)
         if not root.directory:
             root.quit()
             break
         dest_ok, message = validate_destination(root.directory)
         if dest_ok:
-            root.title(f"SDBackup {__version__}")
+            root.title(f"{__app_name__} {__version__}")
             root.deiconify()
             progress = ttk.Progressbar(root, orient="horizontal",
                                        length=350, mode='determinate')
@@ -302,5 +336,5 @@ if __name__ == "__main__":
             root.mainloop()
             break
         else:
-            messagebox.showerror(f"SDBackup {__version__}", message)
+            messagebox.showerror(f"{__app_name__} {__version__}", message)
     sys.exit(0)
