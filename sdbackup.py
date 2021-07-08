@@ -16,7 +16,7 @@ __copyright__ = "Copyright 2020, Steve Magnuson"
 __credits__ = ["Steve Magnuson"]
 __license__ = "GPL"
 __app_name__ = "sdbackup.py"
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 __maintainer__ = "Steve Magnuson"
 __email__ = "ag7gn@arrl.net"
 __status__ = "Production"
@@ -58,7 +58,8 @@ def valid_fstype(mount: str):
     # print(json.dumps(json_object, indent=4))
     for i in range(0, len(json_object['blockdevices'])):
         if json_object['blockdevices'][i]['name'] == block_device:
-            continue  # Skip the source device as a possible destination
+            # destination device cannot be the source device
+            continue
         children = 1
         try:
             _mount = json_object['blockdevices'][i]['children']
@@ -75,7 +76,8 @@ def valid_fstype(mount: str):
                     return False, f"ERROR: '{mount}' is type vfat and does not " \
                                   f"support files larger than 4GB. Use an exfat " \
                                   f"or ext4 formatted disk."
-    return False, f"ERROR: Destination device is the same as the source device. " \
+    return False, f"ERROR: Destination device is the same as the source " \
+                  f"device or can't status destination device.\n" \
                   f"Can't back up to {mount}."
 
 
@@ -235,12 +237,12 @@ if __name__ == "__main__":
     root = None
     signal.signal(signal.SIGINT, sigint_handler)
     import argparse
-    parser = argparse.ArgumentParser(prog='sdbackup.py',
+    parser = argparse.ArgumentParser(prog=__app_name__,
                                      description=f"Backup & compress Raspberry Pi Image")
     parser.add_argument('-v', '--version', action='version',
                         version=f"Version: {__version__}")
     parser.add_argument("-d", "--destination",
-                        type=str, metavar="STRING",
+                        type=str, metavar="PATH",
                         help="Destination path/location for the backup")
     arg_info = parser.parse_args()
 
@@ -259,7 +261,7 @@ if __name__ == "__main__":
     try:
         stat.S_ISBLK(os.stat(disk).st_mode)
     except FileNotFoundError:
-        print(f"ERROR: This application only works on Linux systems",
+        print(f"ERROR: Can't status {disk}. This application only works on Linux systems",
               file=sys.stderr)
         sys.exit(1)
     if os.geteuid() != 0:
@@ -285,7 +287,7 @@ if __name__ == "__main__":
     # to open GUI.
     if os.environ.get('DISPLAY', '') == '':
         print(f"ERROR: No $DISPLAY environment. "
-              f"Must supply destination to run without X", file=sys.stderr)
+              f"Must supply -d,--destination to run without X", file=sys.stderr)
         sys.exit(1)
         # os.environ.__setitem__('DISPLAY', ':0.0')
 
