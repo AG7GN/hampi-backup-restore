@@ -7,7 +7,7 @@ import subprocess
 import json
 import shutil
 import datetime
-import gzip
+import mgzip
 import time
 
 
@@ -16,7 +16,7 @@ __copyright__ = "Copyright 2020, Steve Magnuson"
 __credits__ = ["Steve Magnuson"]
 __license__ = "GPL"
 __app_name__ = "sdbackup.py"
-__version__ = "1.1.2"
+__version__ = "1.1.4"
 __maintainer__ = "Steve Magnuson"
 __email__ = "ag7gn@arrl.net"
 __status__ = "Production"
@@ -24,8 +24,8 @@ __status__ = "Production"
 run_backup = True
 
 
-def sigint_handler(sig, frame):
-    # print(f"Signal handler caught {sig} {frame}")
+def sigint_handler(sig, _):
+    print(f" Signal handler caught {sig}. Cleaning up...")
     cleanup()
 
 
@@ -168,7 +168,7 @@ def backup(path: str, callback=None, block_size=1024*1024):
     start = int(time.time())
     try:
         with open(disk, 'rb') as file_in, \
-                gzip.open(f"{path}/{zip_file}", 'wb') as file_out:
+                mgzip.open(f"{path}/{zip_file}", 'wb', blocksize=block_size) as file_out:
             while run_backup:
                 block = file_in.read(block_size)
                 # if not block:
@@ -203,7 +203,8 @@ def increment(copied, total):
 
 def copy_progress_gui():
     start_button.config(state="disabled")
-    _backup_file, _elapsed_time = backup(root.directory, callback=increment)
+    _backup_file, _elapsed_time = backup(root.directory,
+                                         callback=increment)
     if _elapsed_time is None:
         print(f"ERROR: Backup failed or aborted", file=sys.stderr)
         sys.exit(1)
