@@ -1,6 +1,6 @@
 # nexus-backup-restore
 
-Version 20210524
+Version 20210901
 
 Scripts to backup/restore home folder and to backup and compress the entire microSD card.
 
@@ -77,7 +77,7 @@ I'll set up the script to run every Sunday at 2:13 AM. The script will also dele
 
 - Add the following line to the end of the file (IMPORTANT: change `/media/pi/500GB` to match your attached disk and adjust the time/frequency as desired):
 
-		13 2 * * 0 [ -d /media/pi/500GB ] && (sudo find /media/pi/500GB/$(hostname)_*GB_*.gz -maxdepth 1 -type f -mtime +14 -delete; sudo sdbackup.py -d /media/pi/500GB >/dev/null 2>&1)
+		13 2 * * 0 mountpoint -q  /media/pi/500GB && (sudo find /media/pi/500GB/$(hostname)_*GB_*.gz -maxdepth 1 -type f -mtime +14 -delete; sudo sdbackup.py -d /media/pi/500GB >/dev/null 2>&1)
 
 	The line above breaks down as follows:
 	

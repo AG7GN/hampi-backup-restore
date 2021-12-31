@@ -3,7 +3,7 @@ Name=Backup/Restore Home Folder
 GenericName=Backup/Restore Home Folder
 Comment=Backup or restore user Pi's home folder to external storage
 Exec=lxterminal --geometry=90x30 -t "Backup or restore home folder" -e "/usr/local/bin/nexus-backup-restore.sh"
-Icon=/usr/share/raspberrypi-artwork/raspitr.png
+Icon=/usr/share/icons/PiXflat/64x64/user-home.png
 Terminal=false
 Type=Application
 Categories=HamRadio;
