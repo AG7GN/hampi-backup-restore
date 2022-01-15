@@ -3,7 +3,7 @@
 # Script to backup user's home folder to a tar.gz file,
 # or to restore /home/pi from a previously made tar.gz file.
 
-VERSION="1.2.0"
+VERSION="1.2.1"
 STAMP=$(date +"%Y%m%dT%H%M")
 BACKUP_FILE="${HOSTNAME}_home_${STAMP}.tar.gz"
 EXTERNAL_DISKS="/tmp/external_disks"
@@ -89,6 +89,9 @@ case $? in
         	--exclude=.cache \
         	--exclude=.debug \
        	--exclude=.dbus \
+       	--exclude=.gvfs \
+			--exclude=.local/share/gvfs-metadata \
+			--exclude=.local/share/Trash \
         	--exclude=.recently-used \
         	--exclude=.thumbnails \
 		 	--exclude=.xsession-errors \
