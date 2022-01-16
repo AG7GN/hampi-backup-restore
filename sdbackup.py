@@ -16,7 +16,7 @@ __copyright__ = "Copyright 2020, Steve Magnuson"
 __credits__ = ["Steve Magnuson"]
 __license__ = "GPL"
 __app_name__ = "sdbackup.py"
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 __maintainer__ = "Steve Magnuson"
 __email__ = "ag7gn@arrl.net"
 __status__ = "Production"
@@ -238,13 +238,23 @@ if __name__ == "__main__":
     root = None
     signal.signal(signal.SIGINT, sigint_handler)
     import argparse
+    import textwrap
     parser = argparse.ArgumentParser(prog=__app_name__,
-                                     description=f"Backup & compress Raspberry Pi Image")
+                                     description=f"Backup & compress Raspberry Pi Image",
+                                     formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-v', '--version', action='version',
                         version=f"Version: {__version__}")
     parser.add_argument("-d", "--destination",
                         type=str, metavar="PATH",
-                        help="Destination path/location for the backup")
+                        help=textwrap.dedent('''Directory (exclude filename) to which to write the backup file.
+								
+Backup file will be named $(hostname)_xGB_YYYYmmDDTHHMMSS.gz 
+where:
+	x = size of backed up disk in GB
+	YYYYmmDDTHHMMSS = time stamp of start of backup.
+This file is saved in the directory (-d)
+specified by the user.
+'''))
     arg_info = parser.parse_args()
 
     block_device = None
