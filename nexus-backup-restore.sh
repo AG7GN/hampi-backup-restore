@@ -3,7 +3,7 @@
 # Script to backup user's home folder to a tar.gz file,
 # or to restore /home/pi from a previously made tar.gz file.
 
-VERSION="1.2.1"
+VERSION="1.2.2"
 STAMP=$(date +"%Y%m%dT%H%M")
 BACKUP_FILE="${HOSTNAME}_home_${STAMP}.tar.gz"
 EXTERNAL_DISKS="/tmp/external_disks"
@@ -18,10 +18,10 @@ function errorReport () {
    else
       if [[ $2 == "" ]]
       then
-         echo >&2 "$1"
+         echo >&2 -e "$1"
          exit 1
       else
-         echo >&2 "$1"
+         echo >&2 -e "$1"
          exit $2
       fi
    fi
@@ -104,9 +104,17 @@ case $? in
         	--exclude=tnc.sh \
         	--exclude=dw-*.sh \
         	--exclude=trim-f*.sh \
-        	-cpvzf $BACKUP_FOLDER/$BACKUP_FILE .
+        	-cpvzf $BACKUP_FOLDER/$BACKUP_FILE . 2>/tmp/$(basename $0).log
 
-     	[[ $? != 0 ]] && errorReport "Could not complete backup of $HOME"
+     	if [[ $? != 0 ]]
+     	then
+		   yad --center --title="$(basename $0) Version $VERSION" --info --borders=10 \
+   			--text-align=center \
+      		--text="<big><b>Could not complete backup of $HOME</b></big>\n\n \
+$(cat /tmp/$(basename $0).log)"
+          	--buttons-layout=center --button=Close:0
+     		errorReport "Could not complete backup of $HOME\n$(cat /tmp/$(basename $0).log)"
+     	fi
 
       yad --center --title="$(basename $0) Version $VERSION" --info --borders=20 --text-align=center \
           --text="<big><b>Backup of $HOME Complete.</b></big>\n\nArchive is in <b>$BACKUP_FOLDER/$BACKUP_FILE</b>.\n\n \
