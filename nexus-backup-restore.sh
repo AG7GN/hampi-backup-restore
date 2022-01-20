@@ -3,7 +3,7 @@
 # Script to backup user's home folder to a tar.gz file,
 # or to restore /home/pi from a previously made tar.gz file.
 
-VERSION="1.2.2"
+VERSION="1.2.3"
 STAMP=$(date +"%Y%m%dT%H%M")
 BACKUP_FILE="${HOSTNAME}_home_${STAMP}.tar.gz"
 EXTERNAL_DISKS="/tmp/external_disks"
@@ -19,9 +19,13 @@ function errorReport () {
       if [[ $2 == "" ]]
       then
          echo >&2 -e "$1"
+			echo >&2 "Closing this window in 5 seconds"
+         sleep 5
          exit 1
       else
          echo >&2 -e "$1"
+			echo >&2 "Closing this window in 5 seconds"
+         sleep 5
          exit $2
       fi
    fi
@@ -111,7 +115,7 @@ case $? in
 		   yad --center --title="$(basename $0) Version $VERSION" --info --borders=10 \
    			--text-align=center \
       		--text="<big><b>Could not complete backup of $HOME</b></big>\n\n \
-$(cat /tmp/$(basename $0).log)"
+$(cat /tmp/$(basename $0).log)" \
           	--buttons-layout=center --button=Close:0
      		errorReport "Could not complete backup of $HOME\n$(cat /tmp/$(basename $0).log)"
      	fi
