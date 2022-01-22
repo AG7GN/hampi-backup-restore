@@ -1,6 +1,6 @@
 # nexus-backup-restore
 
-Version 20210901
+Version 20220122
 
 Scripts to backup/restore home folder and to backup and compress the entire microSD card.
 
@@ -38,7 +38,7 @@ On a Raspberry Pi 4B with a 16GB microSD card (about half full) with 4GB RAM and
 
 - The script must be run with `root` privileges (`sudo`).
 
-- The Raspbian OS must have the `exfat-utils` package installed. This is installed by default on the NexusDR-X image.
+- The Raspbian OS must have the `exfatprogs` package installed. This is installed by default on the NexusDR-X image.
 
 - NOTE: The Raspbian OS by default automatically detects disks plugged in to USB and in most cases, a shortcut will automatically appear on the desktop for that disk. You'll also likely see a "__Removable medium inserted__" window pop up when the disk is attached to a USB port. Just click __Cancel__ to close that window. USB attached drives appear as:
 
