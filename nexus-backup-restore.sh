@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Script to backup user's home folder to a tar.gz file,
-# or to restore /home/pi from a previously made tar.gz file.
+# or to restore $HOME from a previously made tar.gz file.
 
-VERSION="1.2.3"
+VERSION="1.2.4"
 STAMP=$(date +"%Y%m%dT%H%M")
 BACKUP_FILE="${HOSTNAME}_home_${STAMP}.tar.gz"
 EXTERNAL_DISKS="/tmp/external_disks"
