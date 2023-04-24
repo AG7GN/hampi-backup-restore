@@ -1,6 +1,6 @@
 # nexus-backup-restore
 
-Version 20220122
+Version 20230424
 
 Scripts to backup/restore home folder and to backup and compress the entire microSD card.
 
@@ -33,6 +33,8 @@ On a Raspberry Pi 4B with a 16GB microSD card (about half full) with 4GB RAM and
 ### Prerequisites
 
 - The USB attached external disk/flash drive must be formatted as `exfat`, which supports files larger than 4GB. [`exfat` formatted](https://recoverit.wondershare.com/usb-tips/format-usb-drive-to-exfat.html) disks can be read by Linux, Mac and Windows PCs. `ext4` formatted disks are also supported, but those disks cannot be read by Macs or Windows PCs. The script will print an error message if the external drive uses a format that does not support files larger than 4GB.
+
+- The volume name of the USB external disk/flash drive must not contain spaces.
 
 - There must be adequate space on the external disk/flash drive. The script will make a guess at how much space will be needed on the external drive for the compressed image and will print an error if it determines that there is not enough space available.
 

@@ -3,7 +3,7 @@
 # Script to backup user's home folder to a tar.gz file,
 # or to restore $HOME from a previously made tar.gz file.
 
-VERSION="1.2.4"
+VERSION="1.2.5"
 STAMP=$(date +"%Y%m%dT%H%M")
 BACKUP_FILE="${HOSTNAME}_home_${STAMP}.tar.gz"
 EXTERNAL_DISKS="/tmp/external_disks"
@@ -55,7 +55,7 @@ function TargetNotOnExternalDrive () {
 SELECTED=0
 yad --center --title="$(basename $0) Version $VERSION" --borders=20 \
 	--text-align=center --width=650 \
-	--text="Attach your USB storage device (it should then be visible as an icon on \
+	--text="USB storage devices must be <b>exfat</b> formatted and the volume name cnnot have spaces.\n\nAttach your USB storage device (it should then be visible as an icon on \
 the Desktop), then click <b>Begin Backup</b> or <b>Begin Restore</b> below.  \
 A window will open that will allow you to select the destination folder for a Backup, \
 or a file for a Restore.\nUSB storage devices usually appear in <b>/media/pi</b>.\n\n \
