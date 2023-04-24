@@ -55,10 +55,10 @@ function TargetNotOnExternalDrive () {
 SELECTED=0
 yad --center --title="$(basename $0) Version $VERSION" --borders=20 \
 	--text-align=center --width=650 \
-	--text="<big><span color='red'>IMPORTANT:</span>USB storage devices must be <b>exfat</b> formatted and the volume name cannot have spaces.</big>\n\nAttach your USB storage device (it should then be visible as an icon on \
+	--text="<big><b><span color='red'>IMPORTANT:</span></b> USB storage devices must be <b>exfat</b> formatted and the volume name cannot have spaces.</big>\n\nAttach your USB storage device (it should then be visible as an icon on \
 the Desktop), then click <b>Begin Backup</b> or <b>Begin Restore</b> below.  \
 A window will open that will allow you to select the destination folder for a Backup, \
-or a file for a Restore.\nUSB storage devices usually appear in <b>/media/pi</b>.\n\n \
+or a file for a Restore.\nUSB storage devices usually appear in <b>/media/${HOME##*/}</b>.\n\n \
 <big><b><span color='blue'>Backup</span></b></big>\nThe contents of \
 <b>$HOME</b> will be archived to a <b>tar.gz</b> file and stored on the attached USB storage device.\n\n \
 <big><b><span color='blue'>Restore</span></b></big>\nA previously made <b>tar.gz</b> \
